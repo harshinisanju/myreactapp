@@ -7,6 +7,27 @@ import {createStackNavigator,createDrawerNavigator,DrawerItems,SafeAreaView} fro
 import { Icon } from 'react-native-elements';
 import Contactus from './Contactus';
 import Aboutus from './Aboutus';
+import { connect } from 'react-redux';
+import { fetchDishes, fetchComments, fetchPromos, fetchLeaders } from '../redux/ActionCreators';
+
+const mapStateToProps = state => {
+  return {
+    dishes: state.dishes,
+    comments: state.comments,
+    promotions: state.promotions,
+    leaders: state.leaders
+  }
+}
+
+const mapDispatchToProps = dispatch => ({
+  fetchDishes: () => dispatch(fetchDishes()),
+  fetchComments: () => dispatch(fetchComments()),
+  fetchPromos: () => dispatch(fetchPromos()),
+  fetchLeaders: () => dispatch(fetchLeaders()),
+})
+
+
+
 const CustomdrawContentCompomnent=(props)=>(
 <ScrollView>
 <SafeAreaView style={StyleSheet.Container}
@@ -144,6 +165,12 @@ Contactus:
 });
 
 class Main extends Component {
+  componentDidMount() {
+    this.props.fetchDishes();
+    this.props.fetchComments();
+    this.props.fetchPromos();
+    this.props.fetchLeaders();
+  }
  
 
   render() {
@@ -187,4 +214,4 @@ drawHeader:
 
 )
   
-export default Main;
+export default  connect(mapStateToProps, mapDispatchToProps)(Main);

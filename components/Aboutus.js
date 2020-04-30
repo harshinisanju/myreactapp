@@ -2,8 +2,14 @@ import React,{ Component } from 'react';
 import { ScrollView,View,Text ,FlatList } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import {Card} from 'react-native-elements';
-import { LEADERS } from '../shared/leaders';
-import { DISHES } from '../shared/dishes';
+import {connect} from 'react-redux';;
+import {baseUrl} from'../shared/baseUrl';
+
+const mapStateToProps = state => {
+    return {
+      leaders: state.leaders
+    }
+  }
 
 function History () {
     return(<Card
@@ -27,14 +33,7 @@ function History () {
     
  
 class Aboutus extends Component{
-  
-constructor(props)
-{
-    super(props);
-    this.state={
-        leaders :LEADERS
 
-    };}
    
     static navigationOptions = {
         title: 'About us'
@@ -50,7 +49,8 @@ constructor(props)
                         title={item.name}
                         subtitle={item.description}
                         hideChevron={true}
-                        leftAvatar={{ source: require('./images/alberto.png')}}
+                        leftAvatar={{ source:{uri: baseUrl + item.image}}}
+                    
                       />
             );
         }
@@ -61,7 +61,7 @@ constructor(props)
                                      <View classname='card2'>
                                            <Card title='Corporate Leadership'>
                                             <FlatList 
-                                                  data={this.state.leaders}
+                                                  data={this.props.leaders.leaders}
                                                    renderItem={renderListItem}
                                                    keyExtractor={item => item.id.toString()}
                                                          /></Card></View></ScrollView>
@@ -69,4 +69,4 @@ constructor(props)
         }
 }
 
-export default Aboutus;
+export default connect(mapStateToProps)(Aboutus);
