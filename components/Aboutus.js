@@ -2,7 +2,8 @@ import React,{ Component } from 'react';
 import { ScrollView,View,Text ,FlatList } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import {Card} from 'react-native-elements';
-import {connect} from 'react-redux';;
+import {connect} from 'react-redux';
+import { Loading } from './LoadingComponent';
 import {baseUrl} from'../shared/baseUrl';
 
 const mapStateToProps = state => {
@@ -54,19 +55,44 @@ class Aboutus extends Component{
                       />
             );
         }
-        
-            return (<ScrollView classname='container'>
-                               <View classname='card1'>
-                                   <History/></View>
-                                     <View classname='card2'>
-                                           <Card title='Corporate Leadership'>
-                                            <FlatList 
-                                                  data={this.props.leaders.leaders}
-                                                   renderItem={renderListItem}
-                                                   keyExtractor={item => item.id.toString()}
-                                                         /></Card></View></ScrollView>
+        if (this.props.leaders.isLoading) {
+            return(
+                <ScrollView>
+                    <History />
+                    <Card
+                        title='Corporate Leadership'>
+                        <Loading />
+                    </Card>
+                </ScrollView>
+            );
+        } else if (this.props.leaders.errMess) {
+            return(
+                <ScrollView>
+                    <History />
+                    <Card
+                        title='Corporate Leadership'>
+                        <Text>{this.props.leaders.errMess}</Text>
+                    </Card>
+                </ScrollView>
             );
         }
+        else {
+            return(
+                <ScrollView>
+                    <History />
+                    <Card
+                        title='Corporate Leadership'>
+                    <FlatList 
+                        data={this.props.leaders.leaders}
+                        renderItem={renderLeader}
+                        keyExtractor={item => item.id.toString()}
+                        />
+                    </Card>
+                </ScrollView>
+            );
+        }
+    }
+        
 }
 
 export default connect(mapStateToProps)(Aboutus);
