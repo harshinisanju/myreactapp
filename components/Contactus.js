@@ -1,14 +1,15 @@
 import React,{ Component } from 'react';
 import {View,Text}from 'react-native';
 import {Card} from 'react-native-elements';
-//import { isWhiteSpaceLike } from 'typescript';
-
+import * as Animatable from 'react-native-animatable';
 
 class Contactus extends Component
 {
     render()
     {
         return (
+            <Animatable.View animation="fadeInDown" duration={2000} delay={1000}>                
+            
             <Card
             title='Contact Information'
             featuredTitle='Contact Information'>
@@ -22,7 +23,7 @@ class Contactus extends Component
                     Email:confusion@food.net{"\n"}
                         
                     </Text>
-            </Card>
+            </Card></Animatable.View>
 
         );
     }
