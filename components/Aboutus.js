@@ -42,7 +42,7 @@ class Aboutus extends Component{
     
     render()
     {
-        const renderListItem = ({item, index}) => {
+        const renderLeader= ({item, index}) => {
 
             return (
                     <ListItem
