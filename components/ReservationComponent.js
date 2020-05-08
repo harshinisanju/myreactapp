@@ -1,8 +1,12 @@
 
 import React, { Component } from 'react'; 
 
-import { Modal, Button, ScrollView,View,Text,Picker,Switch, StyleSheet } from 'react-native';
+import { Modal, Button, ScrollView,View,Text,Picker,Switch, StyleSheet,Alert } from 'react-native';
 import DatePicker from 'react-native-datepicker';
+import * as Animatable from'react-native-animatable';
+{/*import { Permissions,Notifications} from 'expo';*/}
+import * as Permissions from 'expo-permissions';
+import { Notifications } from 'expo';
 
 
 export default class Reservation  extends Component {
@@ -13,8 +17,10 @@ export default class Reservation  extends Component {
             guests: 1,
             smoking: false,
             date: '',
-            isVisible: false
+            isVisible: false,
+            value:''
         }
+        this.showAlert=this.showAlert.bind(this);
     }
 
     resetForm() {
@@ -25,14 +31,82 @@ export default class Reservation  extends Component {
             showModal: false
         });
     }
+    async obtainNotificationPermission() {
+        let permission = await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS);
+        if (permission.status !== 'granted') {
+            permission = await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
+            if (permission.status !== 'granted') {
+                Alert.alert('Permission not granted to show notifications');
+            }
+        }
+        return permission;
+    }
+
+    async presentLocalNotification(date) {
+        await this.obtainNotificationPermission();
+        Notifications.presentLocalNotificationAsync({
+            title: 'Your Reservation',
+            body: 'Reservation for '+ date + ' requested',
+            ios: {
+                sound: true
+            },
+            android: {
+                sound: true,
+                vibrate: true,
+                color: '#512DA8'
+            }
+        });
+    }
+    
     handleReservation() {
         console.log(JSON.stringify(this.state));
     }
+     /*showAlert = () =>{
+      
+        Alert.alert(
+            'Your Reservation OK?',
+            'Number of Guests: ' + this.state.guests +'{{\n}}'+'Smoking?:'+ this.state.smoking ? 'Yes' : 'No'+'{{\n}}'+'Date and Time:'+this.state.date
+            [
+                { 
+                    text: 'Cancel', 
+                    onPress: () =>{this.resetForm()},
+                    style: ' cancel'
+                },
+                {
+                    text: 'OK',
+                    onPress: () =>{this.resetForm()}
+                }
+            ],
+            { cancelable: false }
+        
+        
+      )
+   }*/
+   showAlert()
+    {  this.state.value=this.state.smoking?'yes':'no';
+        
+    Alert.alert(  
+        'Your Reservation OK?',  
+        'No of Guests : '+this.state.guests+'\n'+'Smoking?:' +this.state.value+'\n'+'Date and Time: '+this.state.date,
+        [  
+            {  
+                text: 'Cancel',  
+                onPress: () => this.resetForm(),  
+                style: 'cancel',  
+            },  
+            {text: 'OK', onPress: () => {
+            this.presentLocalNotification(this.state.date)
+            this.resetForm()}
+            
+            },  
+        ]  
+    );  
+}  
 
   render() {
     return (
-      <ScrollView>
-        <Modal animationType = {"slide"} transparent = {false}
+      <Animatable.View  animation="zoomIn" >
+       {/*} <Modal animationType = {"slide"} transparent = {false}
             visible = {this.state.isVisible}
             onRequestClose = {() =>{ console.log("Modal has been closed.") } }>
             <View style = {styles.modal}>
@@ -45,7 +119,7 @@ export default class Reservation  extends Component {
             title="Close" onPress = {() => {
                   this.setState({ isVisible:!this.state.isVisible}),this.resetForm()}}/>
             </View>
-        </Modal>
+            </Modal>*/}
         <View style={styles.formRow}>
                 <Text style={styles.formLabel}>Number of Guests</Text>
                 <Picker
@@ -96,14 +170,14 @@ export default class Reservation  extends Component {
                 />
                 </View>
                 <View style={styles.formRow}>
-        <Button 
-              title="Reserve"
-              color="#512DA8"
-              accessibilityLabel="Learn more about this purple button" 
-           onPress = {() => {this.setState({ isVisible: true});this.handleReservation()}}
-        />
+               
+                <Button  
+                        onPress={this.showAlert}  
+                        title="RESERVE"
+                        color='#512DA8'
+                    />  
            </View>
-      </ScrollView>
+           </Animatable.View>
     );
   }
 }
