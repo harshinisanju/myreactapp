@@ -2,9 +2,17 @@
   "name": "myaapp",
   "displayName": "myaapp",
   "expo": {
+    "sdkVersion": "32.0.0",
     "name": "myaapp",
+    "icon": "./icon.png",
     "slug": "myaapp",
     "version": "1.0.0",
+    "ios": {
+      "bundleIdentifier": "net.food.confusion.confusion"
+    },
+    "android": {
+      "package": "net.food.confusion.confusion"
+    },
     "platforms": [
       "ios",
       "android",
@@ -14,4 +22,5 @@
       "**/*"
     ]
   }
+
 }

@@ -6,6 +6,8 @@ import { createBottomTabNavigator } from 'react-navigation';
 import { baseUrl } from '../shared/baseUrl';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
+import { Asset } from "expo-asset";
+import * as ImageManipulator from "expo-image-manipulator";
 
 
 class LoginTab extends Component {
@@ -146,9 +148,44 @@ class RegisterTab extends Component {
             });
             if (!capturedImage.cancelled) {
                 console.log(capturedImage);
-                this.setState({imageUrl: capturedImage.uri });
+                this.processImage( capturedImage.uri);
             }
         }
+
+    }
+    getImageFromGallary = async () => {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+       if (status !== 'granted') {
+         alert('Sorry, we need camera roll permissions to make this work!');}
+        try {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [4, 3],
+        quality:1,
+        });
+        if (!result.cancelled) {
+          this.processImage(result.uri );
+        }
+  
+        console.log(result);
+      } catch (E) {
+        console.log(E);
+      }
+    };
+  
+
+
+    processImage = async (imageUri) => {
+        let processedImage = await ImageManipulator.manipulateAsync(
+            imageUri, 
+            [
+                {resize: {width: 400}}
+            ],
+            { compress: 1, format: ImageManipulator.SaveFormat.PNG }
+        );
+        console.log(processedImage);
+        this.setState({imageUrl: processedImage.uri });
 
     }
     
@@ -163,6 +200,9 @@ class RegisterTab extends Component {
             />
           ) 
     };
+  
+
+
 
     handleRegister() {
         console.log(JSON.stringify(this.state));
@@ -185,6 +225,9 @@ class RegisterTab extends Component {
                         title="Camera"
                         onPress={this.getImageFromCamera}
                         />
+                        <Button 
+                          title="gallary"
+                          onPress={this.getImageFromGallary}/>
                 </View>
                 <Input
                     placeholder="Username"
@@ -258,7 +301,8 @@ const styles = StyleSheet.create({
     imageContainer: {
         flex: 1,
         flexDirection: 'row',
-        margin: 20
+        margin: 20,
+        justifyContent:"space-around"
     },
     image: {
       margin: 10,

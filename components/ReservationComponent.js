@@ -1,12 +1,12 @@
 
 import React, { Component } from 'react'; 
-
 import { Modal, Button, ScrollView,View,Text,Picker,Switch, StyleSheet,Alert } from 'react-native';
 import DatePicker from 'react-native-datepicker';
 import * as Animatable from'react-native-animatable';
 {/*import { Permissions,Notifications} from 'expo';*/}
 import * as Permissions from 'expo-permissions';
 import { Notifications } from 'expo';
+import * as Calendar from 'expo-calendar';
 
 
 export default class Reservation  extends Component {
@@ -18,9 +18,10 @@ export default class Reservation  extends Component {
             smoking: false,
             date: '',
             isVisible: false,
-            value:''
+            value:'',
+            results:[]
         }
-        this.showAlert=this.showAlert.bind(this);
+        this.handleReservation=this.handleReservation.bind(this);
     }
 
     resetForm() {
@@ -57,10 +58,47 @@ export default class Reservation  extends Component {
             }
         });
     }
+
+    obtainCalendarPermission = async () => {
+        let permission = await Permissions.getAsync(Permissions.CALENDAR);
+        if (permission.status !== 'granted') {
+          permission = await Permissions.askAsync(Permissions.CALENDAR);
+          if (permission.status !== 'granted') {
+            Alert.alert('Permission not granted to show notifications');
+          }
+        }
+        return permission;
+      };
+
+
+
+    addReservationToCalendar = async (date)=> { 
+        const permission = await this.obtainCalendarPermission();
+        if (permission.status === 'granted') {
+            const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+            const defCalendars = calendars.filter((obj) => obj.allowsModifications === true);
+                if (defCalendars) {
+                    Calendar.createEventAsync(defCalendars[0].id,
+                        {
+                            title: 'Con Fusion Table Reservation',
+                            startDate: new Date(Date.parse(date)),
+                            endDate: new Date(Date.parse(date) + (2 * 60 * 60 * 1000)),
+                            timeZone: 'Asia/Hong_Kong',
+                            location: '121, Clear Water Bay Road, Clear Water Bay, Kowloon, Hong Kong'
+
+                        }
+                    );
+                }
+            }
+        }
+
+
+      
+      
     
-    handleReservation() {
-        console.log(JSON.stringify(this.state));
-    }
+
+    
+ 
      /*showAlert = () =>{
       
         Alert.alert(
@@ -82,7 +120,7 @@ export default class Reservation  extends Component {
         
       )
    }*/
-   showAlert()
+   handleReservation()
     {  this.state.value=this.state.smoking?'yes':'no';
         
     Alert.alert(  
@@ -96,6 +134,7 @@ export default class Reservation  extends Component {
             },  
             {text: 'OK', onPress: () => {
             this.presentLocalNotification(this.state.date)
+    this.addReservationToCalendar(this.state.date)
             this.resetForm()}
             
             },  
@@ -172,7 +211,7 @@ export default class Reservation  extends Component {
                 <View style={styles.formRow}>
                
                 <Button  
-                        onPress={this.showAlert}  
+                        onPress={this.handleReservation}  
                         title="RESERVE"
                         color='#512DA8'
                     />  
